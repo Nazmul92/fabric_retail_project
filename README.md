@@ -126,9 +126,32 @@ All three notebooks use an **incremental load pattern** — tracking `MAX(last_u
 
 ### 3. 🥇 Gold Layer — Data Modeling
 
-- Unified customer view built across all regions using **Fabric's Power BI Data Model**
-- Standardized product categorization with aggregated sales and inventory models
-- Business-ready tables optimized for downstream analytics
+Three PySpark notebooks aggregate the cleaned Silver layer data into business-ready Gold tables, each using `CREATE OR REPLACE TABLE` for full refresh on each run.
+
+#### 📓 `gold_daily_sales`
+
+Creates `gold.daily_sales` by aggregating `silver.orders` to produce a daily revenue summary:
+
+- **Aggregation** — groups all transactions by `transaction_date` and sums `total_amount` into `daily_total_sales`
+- **Output** — one row per day, enabling day-over-day sales trend analysis in Power BI
+
+#### 📓 `gold_monthly_sales`
+
+Creates `gold.monthly_sales` by rolling daily transactions up to month-level granularity:
+
+- **Date truncation** — uses `DATE_TRUNC('month', ...)` to normalize all dates to the first of each month as `sales_month`
+- **Aggregation** — sums `total_amount` into `monthly_total_sales` per month
+- **Output** — one row per month ordered chronologically, powering the Monthly Sales Trend chart in the Power BI report
+
+#### 📓 `gold_daily_sales_by_category`
+
+Creates `gold.category_sales` by joining orders with products to produce category-level revenue:
+
+- **Cross-table join** — joins `silver.orders` and `silver.products` on `product_id` to enrich orders with `category`
+- **Aggregation** — groups by `product_category` and sums `total_amount` into `category_total_sales`
+- **Output** — one row per product category (Clothing, Sports, Toys, Garden, Automotive, Home, Food, Books, Electronics, Beauty), powering the Category Sales Distribution pie chart in Power BI
+
+All three Gold tables feed directly into the `retailSemantic` model, where calculated measures such as **Avg Monthly Sales** and **Best Category Sales** are defined for dashboard consumption.
 
 ### 4. ⚡ Batch Processing
 
