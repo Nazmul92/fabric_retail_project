@@ -4,23 +4,6 @@
 
 ---
 
-## 📋 Table of Contents
-
-- [Project Overview](#project-overview)
-- [Business Need](#business-need)
-- [Data Sources](#data-sources)
-- [Architecture](#architecture)
-- [Solution Approach](#solution-approach)
-- [Screenshots](#screenshots)
-- [Expected Outcomes](#expected-outcomes)
-- [Challenges Addressed](#challenges-addressed)
-- [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-
----
-
 ## 📌 Project Overview
 
 Enterprise Retail is a multinational retailer generating enormous volumes of transactional and customer data daily. This project implements a **Microsoft Fabric Data Lakehouse** to consolidate both in-store and online channel data, enabling real-time analytics, accurate forecasting, and improved customer personalization — all at enterprise scale.
@@ -37,6 +20,31 @@ Enterprise Retail requires a solution that can:
 - ✅ **Scale** to meet future growth and potential acquisitions
 
 ---
+## 📁 Project Structure
+
+```
+enterprise-retail-fabric/
+│
+├── pipelines/
+│   ├── ingest_customers_data.csv
+│   ├── ingest_products_data.json
+│   └── ingest_orders_data.parquet
+│
+├── notebooks/
+│   ├── silver_customers_load.ipynb
+│   ├── silver_products_load.ipynb
+│   ├── silver_orders_load.ipynb
+│   ├── gold_daily_sales.ipynb
+│   └── gold_daily_sales_by_category.ipynb
+│
+├── semantic_model/
+│   └── retailSemantic.bim
+│
+├── reports/
+│   └── retail_report.pbix
+│
+└── README.md
+```
 
 ## 🗄️ Data Sources
 
@@ -109,7 +117,7 @@ The solution follows a **Medallion (Bronze → Silver → Gold)** lakehouse arch
 ### Lakehouse — Customers Table (Bronze Layer)
 > Raw customer data ingested into the Bronze layer of the `retailLakehouse`, showing 1,000 rows with fields including `customer_id`, `name`, `country`, `customer_type`, `age`, `gender`, and `total_purchases`.
 
-![Lakehouse Customers Table](./lakehouse-customers.png)
+![Lakehouse Customers Table](./lakehouse.png)
 
 ---
 
@@ -182,52 +190,5 @@ The solution follows a **Medallion (Bronze → Silver → Gold)** lakehouse arch
 5. **Build Gold layer models** using the Fabric Semantic Model editor
 6. **Connect Power BI** to the semantic model and publish dashboards
 
----
-
-## 📁 Project Structure
-
-```
-enterprise-retail-fabric/
-│
-├── pipelines/
-│   ├── ingest_customers.json
-│   ├── ingest_products.json
-│   └── ingest_transactions.json
-│
-├── dataflows/
-│   ├── silver_customers_cleanse.json
-│   ├── silver_products_normalize.json
-│   └── silver_transactions_transform.json
-│
-├── notebooks/
-│   ├── bronze_to_silver_spark.ipynb
-│   └── silver_to_gold_aggregations.ipynb
-│
-├── semantic_model/
-│   └── retailSemantic.bim
-│
-├── reports/
-│   └── enterpriseRetailReport.pbix
-│
-└── README.md
-```
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/your-feature`)
-3. Commit your changes (`git commit -m 'Add your feature'`)
-4. Push to the branch (`git push origin feature/your-feature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
-
----
 
 *Built with ❤️ using Microsoft Fabric — Unifying retail data at enterprise scale.*
