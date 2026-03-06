@@ -90,9 +90,39 @@ The solution follows a **Medallion (Bronze → Silver → Gold)** lakehouse arch
 
 ### 2. 🥈 Silver Layer — Data Processing & Cleansing
 
-- Data cleaned and standardized using **Microsoft Fabric Dataflows**
-- Regional normalization: currency conversion, time zone alignment, and product code mapping via **Fabric Transformation Activities**
-- **Delta Lake** features used for ACID transactions and schema evolution support
+Three dedicated PySpark notebooks handle incremental loads from the Bronze layer, each applying domain-specific transformation rules before upserting into Delta tables via `MERGE`.
+
+#### 📓 `silver_Customer_load`
+
+Transforms raw customer records into `silver_customers` with the following rules:
+
+- **Email validation** — filters out records with null email values
+- **Age validation** — retains only customers aged 18–100
+- **Customer segmentation** — derives `customer_segment` as `High Value` (purchases > 10,000), `Medium Value` (> 5,000), or `Low Value` (≤ 5,000)
+- **Days since registration** — calculates `days_since_registration` using `DATEDIFF` from `registration_date` to current date
+- **Junk record removal** — excludes any records with negative `total_purchases`
+
+#### 📓 `silver_product_load`
+
+Transforms raw product records into `silver_products` with the following rules:
+
+- **Price normalization** — converts negative prices to `0`
+- **Stock quantity normalization** — converts negative stock quantities to `0`
+- **Rating normalization** — clamps `rating` between `0` and `5`
+- **Price categorization** — derives `price_category` as `Premium` (> 1,000), `Standard` (> 100), or `Budget` (≤ 100)
+- **Stock status** — derives `stock_status` as `Out of Stock` (0), `Low Stock` (< 10), `Moderate Stock` (< 50), or `Sufficient Stock` (≥ 50)
+- **Null filtering** — removes records where `name` or `category` is null
+
+#### 📓 `silver_orders_load`
+
+Transforms raw order/transaction records into `silver_orders` with the following rules:
+
+- **Quantity & amount normalization** — converts negative `quantity` or `total_amount` to `0`
+- **Date casting** — ensures `transaction_date` is consistently cast to `DATE` type
+- **Order status derivation** — derives `order_status` as `Cancelled` (qty = 0 and amount = 0), `Completed` (qty > 0 and amount > 0), or `In Progress` (all other cases)
+- **Data quality filtering** — removes records with null `transaction_date`, `customer_id`, or `product_id`
+
+All three notebooks use an **incremental load pattern** — tracking `MAX(last_updated)` to process only new or changed records — and **Delta Lake MERGE** to upsert into the Silver tables, supporting both inserts and updates.
 
 ### 3. 🥇 Gold Layer — Data Modeling
 
